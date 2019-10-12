@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import CardNews from '../components/Card/Card';
 import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
-import api from '../utils/api'
+import api from '../utils/api';
+import Skeleton from 'react-skeleton-loader';
 
 
 class Home extends Component{
@@ -16,19 +17,27 @@ class Home extends Component{
   }
   
   async componentDidMount(){
+    this.setState({isloading: true})
     const news = await api.latestNews();
-    const a = news.slice(1,10)
-    this.setState({news: a})
+    this.setState({news: news.slice(0,10), isloading: false})
   }
 
 
 
   render(){
-    const { news, isloading } = this.state
+    const { news } = this.state
+ 
     return (
       <div style={{ marginTop: '10px' }}>
         <Grid container spacing={3}>
-            {
+          {this.state.isLoading &&
+            Array.from({ length: 10 }, (_, index) => (
+              <Grid item xs={4} key={index}>
+                <Skeleton width={282} height={337} />
+              </Grid>
+            ))}
+
+          {news.length > 0 &&
             news.map(latestNew => (
               <Grid item xs={4} key={latestNew.news_id}>
                 <CardNews news={latestNew} />
@@ -36,6 +45,22 @@ class Home extends Component{
             ))}
         </Grid>
       </div>
+/*       <div style={{ marginTop: '10px' }}>
+        <Grid container spacing={3}>
+            {isloading && Array.from({length: 10}, (_,index) => (
+              <Grid item xs={4} key={index}>
+                <Skeleton width={282} height={337} />
+              </Grid>
+            ))}
+            {
+              news.length > 0 &&
+            news.map(latestNew => (
+              <Grid item xs={4} key={latestNew.news_id}>
+                <CardNews news={latestNew} />
+              </Grid>
+            ))}
+        </Grid>
+      </div> */
     );
   }
 }
